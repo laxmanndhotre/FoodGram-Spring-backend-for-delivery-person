@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/users")
-@CrossOrigin(origins = "https://foodgram-spring-backend-for-delivery-person.up.railway.app", allowCredentials = "true")
+//@CrossOrigin(origins = "https://foodgram-spring-backend-for-delivery-person.up.railway.app", allowCredentials = "true")
 public class AdminUserController {
 
     @Autowired
