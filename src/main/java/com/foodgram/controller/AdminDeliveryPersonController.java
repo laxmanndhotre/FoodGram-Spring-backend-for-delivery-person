@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/delivery-persons")
-@CrossOrigin(origins = "*", allowCredentials = "true")
+@CrossOrigin(origins = "https://foodgram-spring-backend-for-delivery-person.up.railway.app", allowCredentials = "true")
 public class AdminDeliveryPersonController {
 
     @Autowired

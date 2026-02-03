@@ -16,7 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/auth")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "https://foodgram-spring-backend-for-delivery-person.up.railway.app")
 public class AdminAuthController {
 
     @Autowired
