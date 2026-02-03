@@ -42,7 +42,7 @@ public class SecurityConfig {
                         // ✅ Public endpoints (no credentials required)
                         .requestMatchers("/api/admin/auth/**").permitAll()
                         .requestMatchers("/delivery-person/auth/**").permitAll()
-                        .requestMatchers("/user/login", "/user/register").permitAll()
+                        .requestMatchers("/user/signin", "/user/signup").permitAll()
 
                         // ✅ Protected endpoints (require ADMIN role)
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -57,6 +57,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
