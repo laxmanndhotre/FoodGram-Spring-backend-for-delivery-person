@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // ✅ Public endpoints (no credentials required)
-                        .requestMatchers("/api/admin/auth/**").permitAll()
+                        .requestMatchers("/admin/auth/**").permitAll()
                         .requestMatchers("/delivery-person/auth/**").permitAll()
                         .requestMatchers("/user/signin", "/user/signup").permitAll()
 
@@ -49,15 +49,13 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
                         // ✅ Everything else requires authentication
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
