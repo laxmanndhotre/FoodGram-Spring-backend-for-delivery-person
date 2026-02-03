@@ -29,13 +29,12 @@ public class DeliveryPersonService {
     @Autowired
     private DeliveryPersonProfileRepository deliveryPersonProfileRepository;
 
-
     DeliveryPerson deliveryPerson;
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private OrderRepository  orderRepository;
+    private OrderRepository orderRepository;
 
     @Autowired
     private DeliveriesRepository deliveriesRepository;
@@ -46,7 +45,6 @@ public class DeliveryPersonService {
     public DeliveryPersonService(DeliveryPersonRepository deliveryPersonRepository) {
         this.deliveryPersonRepository = deliveryPersonRepository;
     }
-
 
     @Transactional
     public DeliveryPersonResponse createDeliveryPerson(@Valid DeliveryPersonDTO request) {
@@ -65,7 +63,7 @@ public class DeliveryPersonService {
         deliveryPerson.setVehicleNumber(request.getVehicleNumber());
         deliveryPerson.setOperatingArea(request.getOperatingArea());
         deliveryPerson.setStatus(DeliveryPerson.VerificationStatus.pending);
-        deliveryPerson.setEarnings(request.getEarnings() );
+        deliveryPerson.setEarnings(request.getEarnings());
 
         DeliveryPerson saved = deliveryPersonRepository.save(deliveryPerson);
 
@@ -82,24 +80,24 @@ public class DeliveryPersonService {
                 dto,
                 saved.getUser() != null ? saved.getUser().getFullName() : null,
                 saved.getUser() != null ? saved.getUser().getEmail() : null,
-                "Delivery person created successfully"
-        );
+                "Delivery person created successfully");
     }
 
-
-
     public DeliveryPerson updateProfileDetails(DeliveryPerson deliveryPerson) {
-        DeliveryPerson deliveryPersonNew=deliveryPersonProfileRepository.findById(deliveryPerson.getDeliveryPersonId()).orElseThrow(()->new RuntimeException("No Delivery Person Found"));
+        DeliveryPerson deliveryPersonNew = deliveryPersonProfileRepository
+                .findById(deliveryPerson.getDeliveryPersonId())
+                .orElseThrow(() -> new RuntimeException("No Delivery Person Found"));
         deliveryPersonNew.setVehicleNumber(deliveryPerson.getVehicleNumber());
         deliveryPersonNew.setStatus(deliveryPerson.getStatus());
         deliveryPersonNew.setEarnings(deliveryPerson.getEarnings());
         deliveryPersonNew.setOperatingArea(deliveryPerson.getOperatingArea());
         return deliveryPersonProfileRepository.save(deliveryPerson);
     }
-      /*since DeliveryPerson has user as object we need to send entire user object
-    from endpoint(frontend), instead we can just make a dto class for DeliveryPerson that will auto fetch user details
+    /*
+     * since DeliveryPerson has user as object we need to send entire user object
+     * from endpoint(frontend), instead we can just make a dto class for
+     * DeliveryPerson that will auto fetch user details
      */
-
 
     public DeliveryPersonResponse updateDeliveryPerson(long id, @Valid DeliveryPersonDTO request) {
 
@@ -111,8 +109,8 @@ public class DeliveryPersonService {
         deliveryPerson.setOperatingArea(request.getOperatingArea());
 
         try {
-            DeliveryPerson.VerificationStatus statusEnum =
-                    DeliveryPerson.VerificationStatus.valueOf(request.getStatus().toLowerCase());
+            DeliveryPerson.VerificationStatus statusEnum = DeliveryPerson.VerificationStatus
+                    .valueOf(request.getStatus().toLowerCase());
             deliveryPerson.setStatus(statusEnum);
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Invalid status: " + request.getStatus());
@@ -142,20 +140,22 @@ public class DeliveryPersonService {
                 dto,
                 updated.getUser() != null ? updated.getUser().getFullName() : null,
                 updated.getUser() != null ? updated.getUser().getEmail() : null,
-                "Delivery person updated successfully"
-        );
+                "Delivery person updated successfully");
     }
 
     // 🔹 Get all delivery persons with optional filters
-    public Page<DeliveryPersonResponse> getAllDeliveryPersons(int page, int size, String verificationStatus, String operatingArea) {
+    public Page<DeliveryPersonResponse> getAllDeliveryPersons(int page, int size, String verificationStatus,
+            String operatingArea) {
         Page<DeliveryPerson> deliveryPersons;
 
         if (verificationStatus != null && operatingArea != null) {
             deliveryPersons = deliveryPersonRepository.findByStatusAndOperatingArea(
-                    DeliveryPerson.VerificationStatus.valueOf(verificationStatus.toLowerCase()), operatingArea, PageRequest.of(page, size));
+                    DeliveryPerson.VerificationStatus.valueOf(verificationStatus.toLowerCase()), operatingArea,
+                    PageRequest.of(page, size));
         } else if (verificationStatus != null) {
             deliveryPersons = deliveryPersonRepository.findByStatus(
-                    DeliveryPerson.VerificationStatus.valueOf(verificationStatus.toLowerCase()), PageRequest.of(page, size));
+                    DeliveryPerson.VerificationStatus.valueOf(verificationStatus.toLowerCase()),
+                    PageRequest.of(page, size));
         } else if (operatingArea != null) {
             deliveryPersons = deliveryPersonRepository.findByOperatingArea(
                     operatingArea, PageRequest.of(page, size));
@@ -205,11 +205,9 @@ public class DeliveryPersonService {
 
     // 🔹 Get all pending delivery persons
     public List<DeliveryPersonResponse> getPendingDeliveryPersons(int page, int size) {
-        Page<DeliveryPerson> pendingPage =
-                deliveryPersonRepository.findByStatus(
-                        DeliveryPerson.VerificationStatus.pending,
-                        PageRequest.of(page, size)
-                );
+        Page<DeliveryPerson> pendingPage = deliveryPersonRepository.findByStatus(
+                DeliveryPerson.VerificationStatus.pending,
+                PageRequest.of(page, size));
 
         return pendingPage.getContent()
                 .stream()
@@ -231,8 +229,7 @@ public class DeliveryPersonService {
                 dto,
                 deliveryPerson.getUser() != null ? deliveryPerson.getUser().getFullName() : null,
                 deliveryPerson.getUser() != null ? deliveryPerson.getUser().getEmail() : null,
-                "Success"
-        );
+                "Success");
     }
 
     private static final Logger log = LoggerFactory.getLogger(DeliveryPersonService.class);
@@ -286,11 +283,15 @@ public class DeliveryPersonService {
         }).collect(Collectors.toList());
     }
 
-
-
     public DeliveryPersonProfileDto getProfile(Long dpId) {
         DeliveryPerson deliveryPerson = deliveryPersonRepository.findById(dpId)
                 .orElseThrow(() -> new RuntimeException("Delivery person not found"));
+        return toDto(deliveryPerson);
+    }
+
+    public DeliveryPersonProfileDto getProfileByUserId(Long userId) {
+        DeliveryPerson deliveryPerson = deliveryPersonRepository.findByUser_UserId(userId)
+                .orElseThrow(() -> new RuntimeException("Delivery person not found for user id: " + userId));
         return toDto(deliveryPerson);
     }
 
@@ -307,7 +308,6 @@ public class DeliveryPersonService {
         order.setOrderStatus(Orders.OrderStatus.cancelled); // add CANCELLED enum in Orders.OrderStatus if not present
         return orderRepository.save(order);
     }
-
 
     public DeliveryPersonProfileDto updateProfile(Long dpId, DeliveryPersonProfileDto dto) {
         DeliveryPerson deliveryPerson = deliveryPersonRepository.findById(dpId)
@@ -337,12 +337,6 @@ public class DeliveryPersonService {
         return dto;
     }
 
-
-
-
-
-
-
     public Orders markOrderDelivered(int orderId) {
         Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
@@ -370,9 +364,3 @@ public class DeliveryPersonService {
         return orderRepository.save(order);
     }
 }
-
-
-
-
-
-

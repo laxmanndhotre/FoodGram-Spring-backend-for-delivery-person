@@ -1,6 +1,5 @@
 package com.foodgram.controller;
 
-
 import com.foodgram.dto.deliveryperson.DelLoginRequest;
 import com.foodgram.dto.deliveryperson.DelRegisterRequest;
 import com.foodgram.dto.deliveryperson.DeliveryPersonDTO;
@@ -18,16 +17,14 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 @RestController
 @RequestMapping("/delivery-person")
-//@CrossOrigin(origins = "https://foodgram-spring-backend-for-delivery-person.up.railway.app", allowCredentials = "true")
+// @CrossOrigin(origins =
+// "https://foodgram-spring-backend-for-delivery-person.up.railway.app",
+// allowCredentials = "true")
 public class DeliveryPersonController {
 
     private static final Logger log = LoggerFactory.getLogger(DeliveryPersonController.class);
-
-
 
     @Autowired
     private DeliveryPersonService deliveryPersonService;
@@ -36,23 +33,17 @@ public class DeliveryPersonController {
     private UserRepository userRepository;
 
     @Autowired
-    private DeliveryPersonProfileRepository  deliveryPersonProfileRepository;
-
-
-
+    private DeliveryPersonProfileRepository deliveryPersonProfileRepository;
 
     @GetMapping("/{id}/user/{userId}/profile")
     public ResponseEntity<DeliveryPersonProfileDto> getProfile(
             @PathVariable Long id,
             @PathVariable Long userId) {
 
-        DeliveryPersonProfileDto profile = deliveryPersonService.getProfile(id);
+        // Use userId to fetch profile as it's more reliable in this context
+        DeliveryPersonProfileDto profile = deliveryPersonService.getProfileByUserId(userId);
         return ResponseEntity.ok(profile);
     }
-
-
-
-
 
     @PutMapping("/{dpId}/profile")
     public ResponseEntity<DeliveryPersonProfileDto> updateProfile(
@@ -63,12 +54,13 @@ public class DeliveryPersonController {
         return ResponseEntity.ok(updated);
     }
 
-    /*since DeliveryPerson has user as object we need to send entire user object
-    from endpoint(frontend), instead we can just make a dto class for DeliveryPerson that will auto fetch user details
+    /*
+     * since DeliveryPerson has user as object we need to send entire user object
+     * from endpoint(frontend), instead we can just make a dto class for
+     * DeliveryPerson that will auto fetch user details
      */
 
-
-    //for delivery Auth
+    // for delivery Auth
     @Autowired
     private AuthService authService;
 
@@ -79,7 +71,8 @@ public class DeliveryPersonController {
 
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody DelLoginRequest request) {
-        System.out.println("LoginController received: email=" + request.getEmail() + ", password=" + request.getPassword());
+        System.out.println(
+                "LoginController received: email=" + request.getEmail() + ", password=" + request.getPassword());
         // or use a logger:
         log.info("LoginController received email={} password={}", request.getEmail(), request.getPassword());
 
@@ -92,7 +85,6 @@ public class DeliveryPersonController {
         deliveryPersonService.deleteDeliveryPerson((long) dpId);
         return ResponseEntity.ok("Profile deleted successfully");
     }
-
 
     @GetMapping("/{dpId}/orders")
     @PreAuthorize("hasRole('DELIVERY_PERSON')")
@@ -111,7 +103,6 @@ public class DeliveryPersonController {
     public ResponseEntity<?> cancelOrder(@PathVariable int orderId) {
         return ResponseEntity.ok(deliveryPersonService.cancelOrder(orderId));
     }
-
 
     @PostMapping("/profile")
     @PreAuthorize("hasRole('DELIVERY_PERSON')")
