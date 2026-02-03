@@ -39,9 +39,12 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // ✅ Public endpoints (no credentials required)
+                        .requestMatchers("/api/admin/auth/login", "/api/admin/auth/register").permitAll()
                         .requestMatchers("/delivery-person/auth/**").permitAll()
-                        .requestMatchers("/admin/auth/**").permitAll()
                         .requestMatchers("/user/signin", "/user/signup").permitAll()
+
+                        // ✅ Protected endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
@@ -57,7 +60,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        // Allow all origins during dev
+        configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setExposedHeaders(List.of("Authorization"));
@@ -69,7 +73,6 @@ public class SecurityConfig {
 
         return source;
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {
