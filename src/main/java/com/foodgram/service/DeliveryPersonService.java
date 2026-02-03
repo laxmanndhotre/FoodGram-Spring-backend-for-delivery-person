@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Service
 public class DeliveryPersonService {
@@ -281,6 +282,74 @@ public class DeliveryPersonService {
 
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    // 🔹 Get all available orders (Status = pending)
+    public List<OrderDTO> getAllAvailableOrders() {
+        List<Orders> orders = orderRepository.findByOrderStatus(Orders.OrderStatus.pending);
+        return orders.stream()
+                .map(this::mapOrderToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // 🔹 Delivery Person accepts/picks up an order (pending -> out_for_delivery)
+    @Transactional
+    public DeliveryOrderDTO acceptOrder(int orderId, long deliveryPersonId) {
+        Orders order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
+
+        // Ensure order is available (pending)
+        if (order.getOrderStatus() != Orders.OrderStatus.pending) {
+            throw new RuntimeException("Order is is not available for pickup (Status: " + order.getOrderStatus() + ")");
+        }
+
+        DeliveryPerson deliveryPerson = deliveryPersonRepository.findById(deliveryPersonId)
+                .orElseThrow(() -> new RuntimeException("Delivery Person not found with id: " + deliveryPersonId));
+
+        // Update Order Status
+        order.setOrderStatus(Orders.OrderStatus.out_for_delivery);
+        orderRepository.save(order);
+
+        // Create Delivery Entry
+        Deliveries delivery = new Deliveries();
+        delivery.setOrders(order);
+        delivery.setDeliveryPerson(deliveryPerson);
+        delivery.setStatus(Deliveries.DeliveryStatus.picked_up);
+        delivery.setDelTime(LocalDateTime.now());
+
+        Deliveries savedDelivery = deliveriesRepository.save(delivery);
+
+        // Map to DeliveryOrderDTO
+        DeliveryOrderDTO dto = new DeliveryOrderDTO();
+        dto.setDeliveryId(savedDelivery.getDelId());
+        dto.setDeliveryPersonId(deliveryPerson.getDeliveryPersonId());
+        dto.setDeliveryStatus(savedDelivery.getStatus().name());
+        dto.setDeliveryTime(savedDelivery.getDelTime() != null ? savedDelivery.getDelTime().toString() : null);
+        dto.setOrder(mapOrderToDTO(order));
+
+        return dto;
+    }
+
+    private OrderDTO mapOrderToDTO(Orders order) {
+        // Map order items
+        List<OrderItemDTO> itemDTOs = order.getOrderItems().stream().map(item -> {
+            OrderItemDTO dto = new OrderItemDTO();
+            dto.setItemId(Math.toIntExact(item.getMenuItem().getItemId()));
+            dto.setName(item.getMenuItem().getName());
+            dto.setPrice(item.getPrice());
+            dto.setQuantity(item.getQuantity());
+            return dto;
+        }).collect(Collectors.toList());
+
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setOrderId(order.getOrderId());
+        orderDTO.setOrderStatus(order.getOrderStatus().name());
+        orderDTO.setTotalAmount(order.getTotalAmount());
+        orderDTO.setOrderDate(order.getOrderDate().toString());
+        orderDTO.setCustomerName(order.getUser().getFullName());
+        orderDTO.setRestaurantName(order.getRestaurants().getName());
+        orderDTO.setItems(itemDTOs);
+        return orderDTO;
     }
 
     public DeliveryPersonProfileDto getProfile(Long dpId) {

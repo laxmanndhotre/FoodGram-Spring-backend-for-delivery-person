@@ -104,6 +104,18 @@ public class DeliveryPersonController {
         return ResponseEntity.ok(deliveryPersonService.cancelOrder(orderId));
     }
 
+    @GetMapping("/available-orders")
+    @PreAuthorize("hasRole('DELIVERY_PERSON')")
+    public ResponseEntity<?> getAvailableOrders() {
+        return ResponseEntity.ok(deliveryPersonService.getAllAvailableOrders());
+    }
+
+    @PostMapping("/{dpId}/accept-order/{orderId}")
+    @PreAuthorize("hasRole('DELIVERY_PERSON')")
+    public ResponseEntity<?> acceptOrder(@PathVariable Long dpId, @PathVariable int orderId) {
+        return ResponseEntity.ok(deliveryPersonService.acceptOrder(orderId, dpId));
+    }
+
     @PostMapping("/profile")
     @PreAuthorize("hasRole('DELIVERY_PERSON')")
     public ResponseEntity<?> createProfile(@RequestBody DeliveryPersonDTO dto) {
