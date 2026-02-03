@@ -40,13 +40,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // ✅ Public endpoints (no credentials required)
-                        .requestMatchers("/api/admin/auth/login", "/api/admin/auth/register").permitAll()
+                        .requestMatchers("/api/admin/auth/**").permitAll()
                         .requestMatchers("/delivery-person/auth/**").permitAll()
-                        .requestMatchers("/user/signin", "/user/signup").permitAll()
+                        .requestMatchers("/user/login", "/user/register").permitAll()
 
-                        // ✅ Protected endpoints
+                        // ✅ Protected endpoints (require ADMIN role)
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                        // ✅ Everything else requires authentication
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
