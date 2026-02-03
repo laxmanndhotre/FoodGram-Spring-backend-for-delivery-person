@@ -291,10 +291,22 @@ public class DeliveryPersonService {
     public DeliveryPersonProfileDto getProfile(Long dpId) {
         DeliveryPerson deliveryPerson = deliveryPersonRepository.findById(dpId)
                 .orElseThrow(() -> new RuntimeException("Delivery person not found"));
-
         return toDto(deliveryPerson);
     }
 
+    @Transactional
+    public Orders cancelOrder(int orderId) {
+        Orders order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // ✅ Only allow cancellation if order is not already delivered
+        if (order.getOrderStatus() == Orders.OrderStatus.delivered) {
+            throw new RuntimeException("Delivered orders cannot be cancelled");
+        }
+
+        order.setOrderStatus(Orders.OrderStatus.cancelled); // add CANCELLED enum in Orders.OrderStatus if not present
+        return orderRepository.save(order);
+    }
 
 
     public DeliveryPersonProfileDto updateProfile(Long dpId, DeliveryPersonProfileDto dto) {

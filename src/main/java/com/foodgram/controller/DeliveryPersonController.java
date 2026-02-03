@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/delivery-person")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class DeliveryPersonController {
 
     private static final Logger log = LoggerFactory.getLogger(DeliveryPersonController.class);
@@ -105,6 +106,11 @@ public class DeliveryPersonController {
         return ResponseEntity.ok(deliveryPersonService.markOrderDelivered(orderId));
     }
 
+    @PatchMapping("/orders/{orderId}/cancel")
+    @PreAuthorize("hasRole('DELIVERY_PERSON')")
+    public ResponseEntity<?> cancelOrder(@PathVariable int orderId) {
+        return ResponseEntity.ok(deliveryPersonService.cancelOrder(orderId));
+    }
 
 
     @PostMapping("/profile")
