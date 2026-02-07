@@ -284,9 +284,12 @@ public class DeliveryPersonService {
         }).collect(Collectors.toList());
     }
 
-    // 🔹 Get all available orders (Status = pending)
+    // 🔹 Get all available orders (Status = pending, confirmed, preparing)
     public List<OrderDTO> getAllAvailableOrders() {
-        List<Orders> orders = orderRepository.findByOrderStatus(Orders.OrderStatus.pending);
+        List<Orders> orders = orderRepository.findByOrderStatusIn(List.of(
+                Orders.OrderStatus.pending,
+                Orders.OrderStatus.confirmed,
+                Orders.OrderStatus.preparing));
         return orders.stream()
                 .map(this::mapOrderToDTO)
                 .collect(Collectors.toList());
@@ -298,8 +301,10 @@ public class DeliveryPersonService {
         Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
 
-        // Ensure order is available (pending)
-        if (order.getOrderStatus() != Orders.OrderStatus.pending) {
+        // Ensure order is available (pending, confirmed, or preparing)
+        if (order.getOrderStatus() != Orders.OrderStatus.pending &&
+                order.getOrderStatus() != Orders.OrderStatus.confirmed &&
+                order.getOrderStatus() != Orders.OrderStatus.preparing) {
             throw new RuntimeException("Order is is not available for pickup (Status: " + order.getOrderStatus() + ")");
         }
 
