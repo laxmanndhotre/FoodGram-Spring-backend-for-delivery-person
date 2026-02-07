@@ -381,7 +381,14 @@ public class DeliveryPersonService {
             throw new RuntimeException("Delivered orders cannot be cancelled");
         }
 
-        order.setOrderStatus(Orders.OrderStatus.cancelled); // add CANCELLED enum in Orders.OrderStatus if not present
+        // Find and delete the delivery record
+        Deliveries delivery = deliveriesRepository.findByOrders_OrderId(orderId)
+                .orElseThrow(() -> new RuntimeException("Delivery assignment not found for this order"));
+        
+        deliveriesRepository.delete(delivery);
+
+        // Revert order status to confirmed (making it available again)
+        order.setOrderStatus(Orders.OrderStatus.confirmed);
         return orderRepository.save(order);
     }
 
