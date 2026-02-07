@@ -384,7 +384,7 @@ public class DeliveryPersonService {
         // Find and delete the delivery record
         Deliveries delivery = deliveriesRepository.findByOrders_OrderId(orderId)
                 .orElseThrow(() -> new RuntimeException("Delivery assignment not found for this order"));
-        
+
         deliveriesRepository.delete(delivery);
 
         // Revert order status to confirmed (making it available again)
@@ -426,7 +426,8 @@ public class DeliveryPersonService {
 
         // ✅ Only allow delivery person to set "delivered"
         if (order.getOrderStatus() != Orders.OrderStatus.preparing
-                && order.getOrderStatus() != Orders.OrderStatus.confirmed) {
+                && order.getOrderStatus() != Orders.OrderStatus.confirmed
+                && order.getOrderStatus() != Orders.OrderStatus.out_for_delivery) {
             throw new RuntimeException("Order cannot be marked delivered at this stage");
         }
 
