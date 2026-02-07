@@ -17,6 +17,9 @@ public interface DeliveriesRepository extends JpaRepository<Deliveries, Integer>
     // Find deliveries by delivery person ID
     List<Deliveries> findByDeliveryPerson_DeliveryPersonId(int deliveryPersonId);
 
+    // Find delivery by order ID
+    java.util.Optional<Deliveries> findByOrders_OrderId(int orderId);
+
     // Find deliveries by delivery person and status (through Orders)
     List<Deliveries> findByDeliveryPerson_DeliveryPersonIdAndOrders_OrderStatus(
             int deliveryPersonId, Orders.OrderStatus status);

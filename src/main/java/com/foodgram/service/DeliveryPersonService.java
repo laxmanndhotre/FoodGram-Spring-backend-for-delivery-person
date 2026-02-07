@@ -315,8 +315,10 @@ public class DeliveryPersonService {
         order.setOrderStatus(Orders.OrderStatus.out_for_delivery);
         orderRepository.save(order);
 
-        // Create Delivery Entry
-        Deliveries delivery = new Deliveries();
+        // Check if delivery already exists
+        Deliveries delivery = deliveriesRepository.findByOrders_OrderId(orderId)
+                .orElse(new Deliveries()); // Create new if not found
+
         delivery.setOrders(order);
         delivery.setDeliveryPerson(deliveryPerson);
         delivery.setStatus(Deliveries.DeliveryStatus.picked_up);
