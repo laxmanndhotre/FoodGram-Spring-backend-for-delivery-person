@@ -28,47 +28,49 @@ public class AuthService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-
-
-
     @Autowired
     private UserRepository userRepository;
 
-//    public LoginResponse adminLogin(LoginRequest loginRequest) {
-//        logger.info("Login attempt for email: {}", loginRequest.getEmail());
-//
-//        // Find user by email and check if role is ADMIN
-//        User user = userRepository.findByEmailAndRole(loginRequest.getEmail(), User.Role.admin)
-//                .orElseThrow(() -> {
-//                    logger.error("User not found or not an admin: {}", loginRequest.getEmail());
-//                    return new UnauthorizedException("Invalid credentials or not an admin user");
-//                });
-//
-//        logger.info("User found: {}, Role: {}, Status: {}", user.getEmail(), user.getRole(), user.getStatus());
-//
-//        // Check if account is active
-//        if (user.getStatus() != User.Status.active) {
-//            logger.error("Account is not active: {}", user.getStatus());
-//            throw new UnauthorizedException("Account is " + user.getStatus().getValue());
-//        }
-//
-//        // Verify password (plain text comparison)
-//        if (!loginRequest.getPassword().equals(user.getPassword())) {
-//            logger.error("Password mismatch for user: {}", user.getEmail());
-//            throw new UnauthorizedException("Invalid credentials");
-//        }
-//
-//        logger.info("Login successful for user: {}", user.getEmail());
-//
-//        // Return login response
-//        return new LoginResponse(
-//                user.getUserId(),
-//                user.getFullName(),
-//                user.getEmail(),
-//                user.getRole().name(),
-//                user.getStatus().name()
-//        );
-//    }
+    @Autowired
+    private com.foodgram.repository.DeliveryPersonRepository deliveryPersonRepository;
+
+    // public LoginResponse adminLogin(LoginRequest loginRequest) {
+    // logger.info("Login attempt for email: {}", loginRequest.getEmail());
+    //
+    // // Find user by email and check if role is ADMIN
+    // User user = userRepository.findByEmailAndRole(loginRequest.getEmail(),
+    // User.Role.admin)
+    // .orElseThrow(() -> {
+    // logger.error("User not found or not an admin: {}", loginRequest.getEmail());
+    // return new UnauthorizedException("Invalid credentials or not an admin user");
+    // });
+    //
+    // logger.info("User found: {}, Role: {}, Status: {}", user.getEmail(),
+    // user.getRole(), user.getStatus());
+    //
+    // // Check if account is active
+    // if (user.getStatus() != User.Status.active) {
+    // logger.error("Account is not active: {}", user.getStatus());
+    // throw new UnauthorizedException("Account is " + user.getStatus().getValue());
+    // }
+    //
+    // // Verify password (plain text comparison)
+    // if (!loginRequest.getPassword().equals(user.getPassword())) {
+    // logger.error("Password mismatch for user: {}", user.getEmail());
+    // throw new UnauthorizedException("Invalid credentials");
+    // }
+    //
+    // logger.info("Login successful for user: {}", user.getEmail());
+    //
+    // // Return login response
+    // return new LoginResponse(
+    // user.getUserId(),
+    // user.getFullName(),
+    // user.getEmail(),
+    // user.getRole().name(),
+    // user.getStatus().name()
+    // );
+    // }
     public Map<String, Object> adminLogin(LoginRequest loginRequest) {
         logger.info("Login attempt for email: {}", loginRequest.getEmail());
 
@@ -110,7 +112,8 @@ public class AuthService {
         User newUser = new User();
         newUser.setFullName(request.getFullName());
         newUser.setEmail(request.getEmail());
-        newUser.setPassword(passwordEncoder.encode(request.getPassword())); // Plain text password// updated new hashedpassword
+        newUser.setPassword(passwordEncoder.encode(request.getPassword())); // Plain text password// updated new
+                                                                            // hashedpassword
         newUser.setPhone(request.getPhone());
         newUser.setRole(User.Role.admin);
         newUser.setStatus(User.Status.active);
@@ -128,8 +131,7 @@ public class AuthService {
                 savedUser.getPhone(),
                 savedUser.getRole().name(),
                 savedUser.getStatus().name(),
-                savedUser.getCreatedAt()
-        );
+                savedUser.getCreatedAt());
     }
 
     @Autowired
@@ -150,12 +152,11 @@ public class AuthService {
         userRepository.saveAndFlush(user);
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
-
         Map<String, Object> response = new HashMap<>();
         response.put("message", "User registered successfully");
         response.put("userId", user.getUserId());
         response.put("role", user.getRole().name()); // ensure it's a String
-        response.put("token", token);                // 🔹 include token
+        response.put("token", token); // 🔹 include token
 
         return response;
 
@@ -164,7 +165,6 @@ public class AuthService {
     public Map<String, Object> login(@Valid @NotNull DelLoginRequest request) {
 
         logger.info("AuthService comparing email={} password={}", request.getEmail(), request.getPassword());
-
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Invalid email or password"));
@@ -180,9 +180,16 @@ public class AuthService {
         response.put("token", token);
         response.put("userId", user.getUserId());
         response.put("role", user.getRole());
+        if (user.getRole() == User.Role.delivery_person) {
+            com.foodgram.repository.DeliveryPersonRepository deliveryPersonRepository = this.deliveryPersonRepository;
+            com.foodgram.model.DeliveryPerson deliveryPerson = deliveryPersonRepository
+                    .findByUser_UserId(user.getUserId()).orElse(null);
+            if (deliveryPerson != null) {
+                response.put("deliveryPersonId", deliveryPerson.getDeliveryPersonId());
+            }
+        }
+
         return response;
     }
-
-
 
 }
