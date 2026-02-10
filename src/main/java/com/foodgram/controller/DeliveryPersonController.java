@@ -81,14 +81,14 @@ public class DeliveryPersonController {
 
     @DeleteMapping("/{dpId}")
     @PreAuthorize("hasRole('DELIVERY_PERSON')")
-    public ResponseEntity<?> deleteProfile(@PathVariable Long dpId) {
-        deliveryPersonService.deleteDeliveryPerson(dpId);
+    public ResponseEntity<?> deleteProfile(@PathVariable int dpId) {
+        deliveryPersonService.deleteDeliveryPerson((long) dpId);
         return ResponseEntity.ok("Profile deleted successfully");
     }
 
     @GetMapping("/{dpId}/orders")
     @PreAuthorize("hasRole('DELIVERY_PERSON')")
-    public ResponseEntity<?> getAssignedOrders(@PathVariable Long dpId) {
+    public ResponseEntity<?> getAssignedOrders(@PathVariable int dpId) {
         return ResponseEntity.ok(deliveryPersonService.getOrdersForDeliveryPerson(dpId));
     }
 
