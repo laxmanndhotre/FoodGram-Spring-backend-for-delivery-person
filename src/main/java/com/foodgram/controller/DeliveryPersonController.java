@@ -71,10 +71,8 @@ public class DeliveryPersonController {
 
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody DelLoginRequest request) {
-        System.out.println(
-                "LoginController received: email=" + request.getEmail() + ", password=" + request.getPassword());
         // or use a logger:
-        log.info("LoginController received email={} password={}", request.getEmail(), request.getPassword());
+        log.info("LoginController received email={}", request.getEmail());
 
         return ResponseEntity.ok(authService.login(request));
     }

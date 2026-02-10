@@ -163,12 +163,12 @@ public class AuthService {
 
     public Map<String, Object> login(@Valid @NotNull DelLoginRequest request) {
 
-        logger.info("AuthService comparing email={} password={}", request.getEmail(), request.getPassword());
+        logger.info("AuthService comparing email={}", request.getEmail());
 
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Invalid email or password"));
-        logger.info("AuthService comparing email={} password={}", user.getEmail(), user.getPassword());
+        logger.info("AuthService comparing email={}", user.getEmail());
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid email or password");
