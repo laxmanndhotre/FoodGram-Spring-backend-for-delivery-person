@@ -15,12 +15,12 @@ public interface DeliveriesRepository extends JpaRepository<Deliveries, Integer>
     List<Deliveries> findByDeliveryPerson(DeliveryPerson deliveryPerson);
 
     // Find deliveries by delivery person ID
-    List<Deliveries> findByDeliveryPerson_DeliveryPersonId(int deliveryPersonId);
+    List<Deliveries> findByDeliveryPerson_DeliveryPersonId(long deliveryPersonId);
 
     // Find delivery by order ID
     java.util.Optional<Deliveries> findByOrders_OrderId(int orderId);
 
     // Find deliveries by delivery person and status (through Orders)
     List<Deliveries> findByDeliveryPerson_DeliveryPersonIdAndOrders_OrderStatus(
-            int deliveryPersonId, Orders.OrderStatus status);
+            long deliveryPersonId, Orders.OrderStatus status);
 }

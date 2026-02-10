@@ -17,7 +17,7 @@ public class DeliveryPerson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "delivery_person_id")
-    private int deliveryPersonId;
+    private Long deliveryPersonId;
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
@@ -33,7 +33,7 @@ public class DeliveryPerson {
     @Column(name = "verification_status")
     private VerificationStatus status;
 
-    @Column(name ="earnings")
+    @Column(name = "earnings")
     private double earnings;
 
     @OneToMany(mappedBy = "deliveryPerson")

@@ -235,7 +235,7 @@ public class DeliveryPersonService {
 
     private static final Logger log = LoggerFactory.getLogger(DeliveryPersonService.class);
 
-    public List<DeliveryOrderDTO> getOrdersForDeliveryPerson(int dpId) {
+    public List<DeliveryOrderDTO> getOrdersForDeliveryPerson(long dpId) {
         log.info("Fetching deliveries for deliveryPersonId={}", dpId);
 
         List<Deliveries> deliveries = deliveriesRepository.findByDeliveryPerson_DeliveryPersonId(dpId);
